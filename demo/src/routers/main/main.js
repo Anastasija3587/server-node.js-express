@@ -5,7 +5,7 @@ const mainRoute = (request, response) => {
   const filePath = path.join(__dirname, "../../../", "assets", "pizzeria.jpg");
   const image = fs.statSync(filePath);
 
-  response.writeHead(200, {
+  response.writeHead(201, {
     "Content-Type": "image/jpeg",
     "Content-Length": image.size
   });

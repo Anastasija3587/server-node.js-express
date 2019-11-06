@@ -7,8 +7,21 @@ const signUp = async (request, response) => {
     await request.on("data", function(data) {
       body += data;
     });
-
     const userName = JSON.parse(body);
+
+    if (
+      !userName ||
+      !userName.username ||
+      !userName.password ||
+      !userName.telephone ||
+      !userName.email
+    ) {
+      response.writeHead(400, { "Content-Type": "text/plain" });
+      response.write("Error: Invalid Request");
+      response.end();
+      return;
+    }
+
     const filePath = path.join(
       __dirname,
       "../../",
@@ -20,14 +33,14 @@ const signUp = async (request, response) => {
       if (err) {
         throw err;
       }
+      const userBody = {
+        status: "success",
+        user: JSON.parse(body)
+      };
+      response.writeHead(201, { "Content-Type": "application/json" });
+      response.write(JSON.stringify(userBody));
+      response.end();
     });
-
-    response.writeHead(200, { "Content-Type": "application/json" });
-    response.write(`{
-            "status": "success",
-            "user": ${body}
-          }`);
-    response.end();
   }
 };
 
