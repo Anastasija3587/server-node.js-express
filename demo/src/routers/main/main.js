@@ -3,7 +3,10 @@ const path = require("path");
 
 const mainRoute = (request, response) => {
   const filePath = path.join(__dirname, "../../../", "assets", "pizzeria.jpg");
-  fs.stat(filePath, () => {
+  fs.stat(filePath, err => {
+    if (err) {
+      throw err;
+    }
     response.writeHead(201, {
       "Content-Type": "image/jpeg"
     });
