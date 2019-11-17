@@ -1,5 +1,6 @@
 const express = require("express");
 const corsMiddleware = require("cors");
+const port = require("./config")
 const routesProd = require("./src/products/productsRoutes");
 const routesUsers = require("./src/users/usersRouter");
 const routesOrders = require("./src/orders/ordersRouter");
@@ -12,4 +13,4 @@ app.use(routesProd);
 app.use(routesUsers);
 app.use(routesOrders);
 
-app.listen(8080);
+app.listen(port);
