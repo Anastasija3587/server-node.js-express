@@ -1,6 +1,6 @@
 const express = require("express");
 const corsMiddleware = require("cors");
-const port = require("./config")
+const { port } = require("./config");
 const routesProd = require("./src/products/productsRoutes");
 const routesUsers = require("./src/users/usersRouter");
 const routesOrders = require("./src/orders/ordersRouter");

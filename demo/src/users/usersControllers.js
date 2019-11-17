@@ -65,4 +65,8 @@ const getId = (req, res) => {
   }
 };
 
-module.exports = { createUser, getId };
+const getAllUsers = (req, res) => {
+  res.status(201).json(users);
+};
+
+module.exports = { createUser, getId, getAllUsers };
