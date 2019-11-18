@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1573990129136,
+    "username": "Damir",
+    "telephone": "063 888 88 77",
+    "password": "qwerty123",
+    "email": "damir@gmail.com"
+  },
+  {
+    "id": 1573990154277,
+    "username": "Uliana",
+    "telephone": "063 888 88 88",
+    "password": "qwerty99",
+    "email": "ulia@gmail.com"
+  },
+  {
+    "id": 1573995589691,
+    "username": "Anastasia",
+    "telephone": "063 888 88 33",
+    "password": "qwerty44123",
+    "email": "nastia@gmail.com"
+  }
+]
