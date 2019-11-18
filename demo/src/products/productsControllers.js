@@ -25,9 +25,15 @@ const getAllProducts = (req, res) => {
 
 const getCategory = (req, res) => {
   let userBody;
-  let arrObj = [];
+  const arrObj = [];
   const findCat = products.filter(
-    el => el.categories[0] === JSON.parse(req.query.category)
+    el => {
+      try {
+        return el.categories[0] === JSON.parse(req.query.category)
+      } catch(err){
+        console.error('Get state error: ', err);
+      }
+    }
   );
 
   if (findCat.length > 0) {

@@ -29,7 +29,7 @@ const getOrder = (req, res) => {
         }
       });
     } else {
-      let arrOrd = [];
+      const arrOrd = [];
       arrOrd.push(req.body);
       fs.writeFile(fileOrders, JSON.stringify(arrOrd), err => {
         if (err) {
