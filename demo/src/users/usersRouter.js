@@ -9,8 +9,8 @@ router.get("/users", getAllUsers);
 
 router.get("/users/:id", getId);
 
-router.get("/:notfound", (req, res) => {
-  if (req.params.notfound !== "products" || req.params.notfound !== "users") {
+router.get("/*", (req, res) => {
+  if (req.params !== "products" || req.params !== "users") {
     res.status(404).json("Error!!!404!!!");
   }
 });
