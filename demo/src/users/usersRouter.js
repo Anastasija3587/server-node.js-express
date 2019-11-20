@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { createUser, getId, getAllUsers } = require("./usersControllers");
+const { createUser, getId, getAllUsers, updateUser } = require("./usersControllers");
 
 const router = Router();
 
@@ -9,10 +9,12 @@ router.get("/users", getAllUsers);
 
 router.get("/users/:id", getId);
 
-router.get("/*", (req, res) => {
-  if (req.params !== "products" || req.params !== "users") {
-    res.status(404).json("Error!!!404!!!");
-  }
-});
+router.put("/users/:id", updateUser);
+
+// router.get("/*", (req, res) => {
+//   if (req.params !== "orders" || req.params !== "products" || req.params !== "users") {
+//     res.status(404).json("Error!!!404!!!");
+//   }
+// });
 
 module.exports = router;

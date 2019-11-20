@@ -1,72 +1,69 @@
-const users = require("../db/users/all-users.json");
-const fs = require("fs");
-const path = require("path");
+const Users = require("../modules/db/schema/schema");
+const bcrypt = require("bcrypt");
 
 const createUser = (req, res) => {
-  const { username, telephone, password, email } = req.body;
-  const body = {
-    id: Date.now(),
-    username,
-    telephone,
-    password,
-    email
-  };
-  const arr = [];
+  const user = req.body;
 
-  const fileUser = path.join(
-    __dirname,
-    "../",
-    "db/",
-    "users/",
-    "all-users.json"
-  );
-  fs.readFile(fileUser, (err, data) => {
-    if (err) {
-      throw err;
-    }
-    if (data.length > 0) {
-      JSON.parse(data).forEach(el => {
-        arr.push(el);
-      });
-      arr.push(body);
-      fs.writeFile(fileUser, JSON.stringify(arr), err => {
-        if (err) {
-          throw err;
-        }
-      });
-    } else {
-      let arrUsers = [];
-      arrUsers.push(body);
-      fs.writeFile(fileUser, JSON.stringify(arrUsers), err => {
-        if (err) {
-          throw err;
-        }
-      });
-    }
-  });
-  const userBody = {
-    status: "success",
-    user: body
+  const hashedPassword = bcrypt.hashSync(user.password, 10);
+  const userData = { ...user, password: hashedPassword };
+
+  const newUser = new Users(userData);
+
+  const sendResponse = user => {
+    const userBody = {
+      status: "success",
+      user: user
+    };
+    res.status(201).json(userBody);
   };
-  res.status(200).json(userBody);
+
+  const sendErr = () => {
+    res.status(400).json("error: 'user was not saved'");
+  };
+
+  newUser
+    .save()
+    .then(sendResponse)
+    .catch(sendErr);
 };
 
 const getId = (req, res) => {
-  const idUser = users.find(el => el.id === Number(req.params.id));
-  if (idUser) {
+  const id = req.params.id;
+  Users.findById(id)
+    .then(user => {
+      const userBody = {
+        status: "success",
+        user: user
+      };
+      res.status(200).json(userBody);
+    })
+    .catch(err => {
+      if(res.status(204)){
+        return res.send()
+      }
+        console.log(err);
+})};
+
+const updateUser = async (req, res) => {
+  const body = req.body
+  const id = req.params.id;
+  if (body.password) {
+    user.password = bcrypt.hashSync(body.password, 10);
+  }
+  Users.findOneAndUpdate(id, body, { new: true }).then(user => {
     const userBody = {
       status: "success",
-      products: idUser
+      user: user
     };
     res.status(201).json(userBody);
-  } else {
-    const userBody = { status: "not found" };
-    res.status(201).json(userBody);
-  }
+  })
+  .catch(err => console.log(err));
 };
 
 const getAllUsers = (req, res) => {
-  res.status(201).json(users);
+  Users.find({}).then(users => {
+    res.status(201).json(users);
+  });
 };
 
-module.exports = { createUser, getId, getAllUsers };
+module.exports = { createUser, getId, getAllUsers, updateUser };
