@@ -63,7 +63,7 @@ const updateUser = async (req, res) => {
 const getAllUsers = (req, res) => {
   Users.find({}).then(users => {
     res.status(201).json(users);
-  });
+  }).catch(err=>console.log(err))
 };
 
 module.exports = { createUser, getId, getAllUsers, updateUser };
