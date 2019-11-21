@@ -1,30 +1,24 @@
-const Users = require("../modules/db/schema/schema");
+const Users = require("./schemaUser");
 const bcrypt = require("bcrypt");
 
-const createUser = (req, res) => {
+const createUser = async (req, res) => {
   const user = req.body;
 
-  const hashedPassword = bcrypt.hashSync(user.password, 10);
+  const hashedPassword = await bcrypt.hash(user.password, 10);
   const userData = { ...user, password: hashedPassword };
 
   const newUser = new Users(userData);
 
-  const sendResponse = user => {
-    const userBody = {
-      status: "success",
-      user: user
-    };
-    res.status(201).json(userBody);
-  };
-
-  const sendErr = () => {
-    res.status(400).json("error: 'user was not saved'");
-  };
-
   newUser
     .save()
-    .then(sendResponse)
-    .catch(sendErr);
+    .then(user => {
+      const userBody = {
+        status: "success",
+        user: user
+      };
+      res.status(201).json(userBody);
+    })
+    .catch(err => res.status(500).json(err));
 };
 
 const getId = (req, res) => {
@@ -37,33 +31,33 @@ const getId = (req, res) => {
       };
       res.status(200).json(userBody);
     })
-    .catch(err => {
-      if(res.status(204)){
-        return res.send()
-      }
-        console.log(err);
-})};
+    .catch(() => res.status(404).json("User was not found!"));
+};
 
 const updateUser = async (req, res) => {
-  const body = req.body
+  const body = req.body;
   const id = req.params.id;
+
   if (body.password) {
-    user.password = bcrypt.hashSync(body.password, 10);
+    user.password = await bcrypt.hash(body.password, 10);
   }
-  Users.findOneAndUpdate(id, body, { new: true }).then(user => {
-    const userBody = {
-      status: "success",
-      user: user
-    };
-    res.status(201).json(userBody);
-  })
-  .catch(err => console.log(err));
+  Users.findByIdAndUpdate(req.params.id, body, { new: true })
+    .then(user => {
+      const userBody = {
+        status: "success",
+        user: user
+      };
+      res.status(200).json(userBody);
+    })
+    .catch(err => res.status(500).json(err));
 };
 
 const getAllUsers = (req, res) => {
-  Users.find({}).then(users => {
-    res.status(201).json(users);
-  }).catch(err=>console.log(err))
+  Users.find({})
+    .then(users => {
+      res.status(200).json(users);
+    })
+    .catch(err => res.status(500).json(err));
 };
 
 module.exports = { createUser, getId, getAllUsers, updateUser };

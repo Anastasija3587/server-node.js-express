@@ -1,16 +1,16 @@
 const { Router } = require("express");
-const { createOrder, getOrder } = require("./ordersController");
+const {
+  createOrder,
+  getOrder,
+  getAllOrder,
+  updateOrder
+} = require("./ordersController");
 
 const router = Router();
 
-router.post("/orders", createOrder);
-
-router.get("/orders/:id", getOrder)
-
-// router.get("/*", (req, res) => {
-//       if (req.params !== "orders" || req.params !== "products" || req.params !== "users") {
-//         res.status(404).json("Error!!!404!!!");
-//       }
-//     });
+router.post("/", createOrder);
+router.get("/", getAllOrder);
+router.get("/:id", getOrder);
+router.put("/:id", updateOrder);
 
 module.exports = router;

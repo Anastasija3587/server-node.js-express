@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const timestamp = require("../middleware/timestamp");
+const timestamp = require("../modules/db/middleware/timestamp");
 
 const orderSchema = new Schema({
   creator: {
