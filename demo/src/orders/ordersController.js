@@ -1,45 +1,43 @@
 const Orders = require("./schemaOrder");
 
-const createOrder = (req, res) => {
-  const order = req.body;
-  const newOrder = new Orders(order);
+const createOrder = async (req, res) => {
+  try {
+    const newOrder = new Orders(order);
+    const createNewOrder = await newOrder.save();
+    res.status(201).json({ status: "success", order: createNewOrder });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
 
-  newOrder
-    .save()
-    .then(order => {
-      res.status(201).json({ status: "success", order: order });
-    })
-    .catch(() => {
-      res.status(400).json("error: 'order was not saved'");
+const getAllOrder = async (req, res) => {
+  try {
+    const allOrder = await Orders.find({});
+    res.status(200).json(allOrder);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+const getOrder = async (req, res) => {
+  try {
+    const findOrderById = await Orders.findById(req.params.id);
+    res.status(200).json({ status: "success", order: findOrderById });
+  } catch {
+    res.status(404).json("User was not found!");
+  }
+};
+
+const updateOrder = async (req, res) => {
+  try {
+    const body = req.body;
+    const orderUpdate = await Orders.findByIdAndUpdate(req.params.id, body, {
+      new: true
     });
-};
-
-const getAllOrder = (req, res) => {
-  Orders.find({})
-    .then(orders => res.status(200).json(orders))
-    .catch(err => res.status(500).json(err));
-};
-
-const getOrder = (req, res) => {
-  Orders.findById(req.params.id)
-    .then(order => {
-      res.status(200).json({ status: "success", order: order });
-    })
-    .catch(() => res.status(404).json("error: 'order was not found'"));
-};
-
-const updateOrder = (req, res) => {
-  const body = req.body;
-  const id = req.params.id;
-  Orders.findByIdAndUpdate(id, body, { new: true })
-    .then(order => {
-      const orderBoby = {
-        status: "success",
-        order: order
-      };
-      res.status(200).json(orderBoby);
-    })
-    .catch(err => res.status(500).json(err));
+    res.status(200).json({ status: "success", order: orderUpdate });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 module.exports = { createOrder, getOrder, getAllOrder, updateOrder };
