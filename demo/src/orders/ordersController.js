@@ -1,63 +1,43 @@
-const products = require("../db/products/all-products.json");
-const users = require("../db/users/all-users.json");
-const fs = require("fs");
-const path = require("path");
+const Orders = require("./schemaOrder");
 
-const getOrder = (req, res) => {
-  const { id, deliveryType, deliveryAdress } = req.body;
-  const fileOrders = path.join(
-    __dirname,
-    "../",
-    "db/",
-    "users/",
-    "orders.json"
-  );
-
-  const arr = [];
-  fs.readFile(fileOrders, (err, data) => {
-    if (err) {
-      throw err;
-    }
-    if (data.length > 0) {
-      JSON.parse(data).forEach(el => {
-        arr.push(el);
-      });
-      arr.push(req.body);
-      fs.writeFile(fileOrders, JSON.stringify(arr), err => {
-        if (err) {
-          throw err;
-        }
-      });
-    } else {
-      const arrOrd = [];
-      arrOrd.push(req.body);
-      fs.writeFile(fileOrders, JSON.stringify(arrOrd), err => {
-        if (err) {
-          throw err;
-        }
-      });
-    }
-  });
-  const idUser = req.body.user;
-  const userName = users.find(el => el.id === +idUser);
-  const orderedProds = req.body.products;
-  const arrOrderedProdName = [];
-  orderedProds.map(elem => {
-    const prod = products.find(el => el.id === +elem);
-    arrOrderedProdName.push(prod.name);
-  });
-  const body = {
-    id,
-    user: userName.username,
-    products: arrOrderedProdName,
-    deliveryType,
-    deliveryAdress
-  };
-  const userBody = {
-    status: "success",
-    user: body
-  };
-  res.status(200).json(userBody);
+const createOrder = async (req, res) => {
+  try {
+    const newOrder = new Orders(order);
+    const createNewOrder = await newOrder.save();
+    res.status(201).json({ status: "success", order: createNewOrder });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
-module.exports = { getOrder };
+const getAllOrder = async (req, res) => {
+  try {
+    const allOrder = await Orders.find({});
+    res.status(200).json(allOrder);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+const getOrder = async (req, res) => {
+  try {
+    const findOrderById = await Orders.findById(req.params.id);
+    res.status(200).json({ status: "success", order: findOrderById });
+  } catch {
+    res.status(404).json("User was not found!");
+  }
+};
+
+const updateOrder = async (req, res) => {
+  try {
+    const body = req.body;
+    const orderUpdate = await Orders.findByIdAndUpdate(req.params.id, body, {
+      new: true
+    });
+    res.status(200).json({ status: "success", order: orderUpdate });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+module.exports = { createOrder, getOrder, getAllOrder, updateOrder };

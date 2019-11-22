@@ -1,93 +1,70 @@
-const products = require("../db/products/all-products.json");
+const Products = require("./schemaProducts");
 
-const getId = (req, res) => {
-  const idProd = products.find(el => el.id === Number(req.params.id));
-  if (idProd) {
-    const userBody = {
-      status: "success",
-      products: idProd
-    };
-    res.send(userBody);
-  } else {
-    res.send("Error! 404! Page not found");
+const getId = async (req, res) => {
+  try {
+    const findProductsById = await Products.findById(req.params.id);
+    res.status(200).json({ status: "success", product: findProductsById });
+  } catch {
+    res.status(404).json("User was not found!");
   }
 };
 
-const getAllProducts = (req, res) => {
-  if (Object.keys(req.query).includes("category")) {
-    getCategory(req, res);
-  } else if (Object.keys(req.query).includes("ids")) {
-    getIds(req, res);
-  } else {
-    res.status(200).json(products);
-  }
-};
-
-const getCategory = (req, res) => {
-  let userBody;
-  const arrObj = [];
-  const findCat = products.filter(
-    el => {
-      try {
-        return el.categories[0] === JSON.parse(req.query.category)
-      } catch(err){
-        console.error('Get state error: ', err);
-      }
-    }
-  );
-
-  if (findCat.length > 0) {
-    arrObj.push(findCat);
-
-    userBody = {
-      status: "success",
-      products: arrObj
-    };
-    res.status(200).json(userBody);
-  } else {
-    userBody = {
-      status: "no products",
-      products: []
-    };
-    res.status(200).json(userBody);
-  }
-};
-
-const getIds = (req, res) => {
-  let arrObj = [];
-  let userBody;
-  products.filter(elem => {
-    if (req.query.ids.includes(elem.id)) {
-      const obj = {
-        id: elem.id,
-        sku: elem.sku,
-        name: elem.name,
-        description: elem.description
-      };
-      arrObj.push(obj);
-    }
-    if (arrObj.length > 0) {
-      userBody = {
-        status: "success",
-        products: arrObj
-      };
+const getAllProducts = async (req, res) => {
+  try {
+    if (req.query.category) {
+      await getCategory(req, res);
+    } else if (req.query.ids) {
+      await getIds(req, res);
     } else {
-      userBody = {
-        status: "no products",
-        products: []
-      };
+      const allProducts = await Products.find({});
+      res.status(200).json(allProducts);
     }
-  });
-  res.status(200).json(userBody);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
-const defaultPage = (req, res) => {
-  res.send("Welcome!!!");
+const getCategory = async (req, res) => {
+  try {
+    const productsByCategory = await Products.find({
+      categories: req.query.category
+    });
+    res.status(200).json({ status: "success", products: productsByCategory });
+  } catch {
+    res.status(400).json("error: 'products not found'");
+  }
+};
+
+const getIds = async (req, res) => {
+  try {
+    const productsByIds = await Products.find({});
+    const filterById = productsByIds.filter(el =>
+      req.query.ids.includes(String(el._id))
+    );
+    res.status(200).json({ status: "success", products: filterById });
+  } catch {
+    res.status(400).json("error: 'products not found'");
+  }
+};
+
+const updateProduct = async (req, res) => {
+  try {
+    const body = req.body;
+    const productUpdate = await Products.findByIdAndUpdate(
+      req.params.id,
+      body,
+      {
+        new: true
+      }
+    );
+    res.status(200).json({ status: "success", product: productUpdate });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 module.exports = {
   getAllProducts,
   getId,
-  getCategory,
-  defaultPage
+  updateProduct
 };

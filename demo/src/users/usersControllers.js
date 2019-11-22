@@ -1,72 +1,50 @@
-const users = require("../db/users/all-users.json");
-const fs = require("fs");
-const path = require("path");
+const Users = require("./schemaUser");
+const bcrypt = require("bcrypt");
 
-const createUser = (req, res) => {
-  const { username, telephone, password, email } = req.body;
-  const body = {
-    id: Date.now(),
-    username,
-    telephone,
-    password,
-    email
-  };
-  const arr = [];
-
-  const fileUser = path.join(
-    __dirname,
-    "../",
-    "db/",
-    "users/",
-    "all-users.json"
-  );
-  fs.readFile(fileUser, (err, data) => {
-    if (err) {
-      throw err;
-    }
-    if (data.length > 0) {
-      JSON.parse(data).forEach(el => {
-        arr.push(el);
-      });
-      arr.push(body);
-      fs.writeFile(fileUser, JSON.stringify(arr), err => {
-        if (err) {
-          throw err;
-        }
-      });
-    } else {
-      let arrUsers = [];
-      arrUsers.push(body);
-      fs.writeFile(fileUser, JSON.stringify(arrUsers), err => {
-        if (err) {
-          throw err;
-        }
-      });
-    }
-  });
-  const userBody = {
-    status: "success",
-    user: body
-  };
-  res.status(200).json(userBody);
-};
-
-const getId = (req, res) => {
-  const idUser = users.find(el => el.id === Number(req.params.id));
-  if (idUser) {
-    const userBody = {
-      status: "success",
-      products: idUser
-    };
-    res.status(201).json(userBody);
-  } else {
-    const userBody = { status: "not found" };
-    res.status(201).json(userBody);
+const createUser = async (req, res) => {
+  try {
+    const user = req.body;
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    const userData = { ...user, password: hashedPassword };
+    const newUser = new Users(userData);
+    const createNewUser = await newUser.save();
+    res.status(201).json({ status: "success", user: createNewUser });
+  } catch (err) {
+    res.status(500).json(err);
   }
 };
 
-const getAllUsers = (req, res) => {
-  res.status(201).json(users);
+const getId = async (req, res) => {
+  try {
+    const findUsersById = await Users.findById(req.params.id);
+    res.status(200).json({ status: "success", user: findUsersById });
+  } catch {
+    res.status(404).json("User was not found!");
+  }
 };
 
-module.exports = { createUser, getId, getAllUsers };
+const updateUser = async (req, res) => {
+  try {
+    const body = req.body;
+    if (body.password) {
+      user.password = await bcrypt.hash(body.password, 10);
+    }
+    const userUpdate = await Users.findByIdAndUpdate(req.params.id, body, {
+      new: true
+    });
+    res.status(200).json({ status: "success", user: userUpdate });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+const getAllUsers = async (req, res) => {
+  try {
+    const allUsers = await Users.find({});
+    res.status(200).json(allUsers);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+module.exports = { createUser, getId, getAllUsers, updateUser };
