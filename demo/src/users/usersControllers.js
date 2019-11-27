@@ -1,18 +1,4 @@
 const Users = require("./schemaUser");
-const bcrypt = require("bcrypt");
-
-const createUser = async (req, res) => {
-  try {
-    const user = req.body;
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-    const userData = { ...user, password: hashedPassword };
-    const newUser = new Users(userData);
-    const createNewUser = await newUser.save();
-    res.status(201).json({ status: "success", user: createNewUser });
-  } catch (err) {
-    res.status(500).json(err);
-  }
-};
 
 const getId = async (req, res) => {
   try {
@@ -47,4 +33,13 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-module.exports = { createUser, getId, getAllUsers, updateUser };
+const deleteUserById = async (req, res) => {
+  try {
+    await Users.findById(req.params.id).deleteOne();
+    res.status(200).json("User was deleted!");
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+module.exports = { getId, getAllUsers, updateUser, deleteUserById };

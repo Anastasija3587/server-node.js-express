@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const routesProd = require("./products/productsRoutes");
 const routesUsers = require("./users/usersRouter");
 const routesOrders = require("./orders/ordersRouter");
+const routesComments = require("./comments/commentsRoutes");
+const routesAuth = require("./users/auth/authRoutes");
 
 const app = express();
 
@@ -18,9 +20,11 @@ async function start() {
 
     app.use(express.json());
     app.use(corsMiddleware());
-    app.use("/products", routesProd);
+    app.use("/auth", routesAuth);
     app.use("/users", routesUsers);
+    app.use("/products", routesProd);
     app.use("/orders", routesOrders);
+    app.use("/comments", routesComments);
     app.get("/", (req, res) => res.status(200).json("Welcome!"));
     app.use("*", (req, res) => {
       if (
