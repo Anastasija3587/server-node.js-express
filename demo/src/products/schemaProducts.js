@@ -15,7 +15,7 @@ const productSchema = new Schema({
     type: String,
     required: true
   },
-  prica: {
+  price: {
     type: String,
     required: true
   },
@@ -31,6 +31,9 @@ const productSchema = new Schema({
     type: Array,
     required: true
   },
+  ingredients: [
+    { type: Schema.Types.ObjectId, ref: "Ingredient" }
+  ],
   likes: Number
 });
 

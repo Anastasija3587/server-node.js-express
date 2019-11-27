@@ -2,7 +2,7 @@ const Orders = require("./schemaOrder");
 
 const createOrder = async (req, res) => {
   try {
-    const newOrder = new Orders(order);
+    const newOrder = new Orders(req.body);
     const createNewOrder = await newOrder.save();
     res.status(201).json({ status: "success", order: createNewOrder });
   } catch (err) {
@@ -40,4 +40,19 @@ const updateOrder = async (req, res) => {
   }
 };
 
-module.exports = { createOrder, getOrder, getAllOrder, updateOrder };
+const deleteOrderById = async (req, res) => {
+  try {
+    await Orders.findById(req.params.id).deleteOne();
+    res.status(200).json("Order was deleted!");
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+module.exports = {
+  createOrder,
+  getOrder,
+  getAllOrder,
+  updateOrder,
+  deleteOrderById
+};
